@@ -41,6 +41,6 @@ ssh-keygen -t rsa -f ~/.ssh/ansbile -C ansible -b 2048
 
 ```bash
 private_key_file = <path_to_your_private_key>
-
+```
 
 And don't forget about project_id in main.tf and IP adresses in /ansible/invenory.
