@@ -1,0 +1,52 @@
+  - hosts: db_servers
+    remote_user: ansible
+    become: true
+    become_method: sudo
+    gather_facts: yes
+
+    tasks:
+      - name: Update packages
+        ansible.builtin.apt:
+          update_cache: yes
+          name: "*"
+          state: latest
+
+      - name: Install a list of packages
+        ansible.builtin.apt:
+          pkg:
+            - gnupg2
+            - ca-certificates
+            - lsb-release
+            - mc
+            - htop
+            - curl
+            - wget
+            - git
+            - micro
+            - net-tools
+
+      - name: Add Percona repository
+        ansible.builtin.apt:
+          deb: 'https://repo.percona.com/apt/percona-release_latest.focal_all.deb'
+
+      - name: Enable Percona 8.0 repository
+        shell: percona-release setup ps80
+
+      - name: Install server package
+        ansible.builtin.apt:
+          update_cache: yes
+          name: percona-server-server
+          state: present
+
+      - name: Copy conf file
+        template:
+          src: templates/mysqld.cnf
+          dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+          owner: root
+          group: root
+          mode: 0644
+
+      - name: Restart DB
+        systemd:
+          name: mysql
+          state: restarted            
